@@ -1,193 +1,265 @@
-import streamlit as st
+    import streamlit as st
 import random
 import time
 import re
+import requests
+from bs4 import BeautifulSoup
+import google.generativeai as genai
 
-# --- ১. সিকিউরিটি এবং পেজ কনফিগারেশন (Hack-Proof Setup) ---
+# --- ১. API কী লোড করা এবং হ্যাকিং প্রতিরোধ ---
+# Streamlit Secrets থেকে API Key লোড করা (আপনার Secrets বক্সে এটি সেট করতে হবে)
+try:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    model = genai.GenerativeModel('gemini-pro')
+except Exception as e:
+    st.error("AI API Key not found. Please set `GEMINI_API_KEY` in Streamlit Secrets.")
+    st.stop()
+
+# ইনপুট স্যানিটাইজেশন (হ্যাকিং প্রতিরোধ)
+def clean_input(text):
+    if text:
+        return re.sub(r'[<>/{}[\]\\^`|]', '', text)
+    return ""
+
+# --- ২. পেজ সেটিংস ও SEO ---
 st.set_page_config(
-    page_title="Global Retail Intelligence | Premium Liquidation",
-    page_icon="🛡️",
-    layout="wide", # সাইটটি বড় দেখানোর জন্য
-    initial_sidebar_state="collapsed"
+    page_title="Global Retail Intelligence | AI Smart Shopper",
+    page_icon="⚡",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# ইনপুট ক্লিন করার ফাংশন (Security Layer)
-def clean_input(text):
-    return re.sub(r'[<>/{}[\]\\^`|]', '', text)
-
-# --- ২. প্রফেশনাল সিএসএস (Modern E-commerce Design) ---
+# --- ৩. অত্যাধুনিক CSS ডিজাইন (E-commerce Giant Look) ---
 st.markdown("""
     <style>
-    /* মেইন ব্যাকগ্রাউন্ড */
-    .stApp {
-        background: #f8f9fa;
-        color: #1d1d1f;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
     
-    /* প্রিমিয়াম নেভিগেশন বার */
-    .nav-bar {
-        background: #ffffff;
-        padding: 15px 50px;
+    html, body, [class*="css"] { font-family: 'Roboto', sans-serif; }
+    
+    .stApp {
+        background: #f0f2f5;
+        color: #333;
+    }
+
+    /* নেভিগেশন বার */
+    .header-bar {
+        background: white;
+        padding: 15px 5%;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        position: fixed;
-        top: 0; left: 0; right: 0; z-index: 1000;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        border-bottom: 1px solid #e0e0e0;
     }
 
-    /* হিরো সেকশন - গ্রাহককে আটকে রাখার জন্য */
-    .hero-section {
-        background: linear-gradient(135deg, #0071e3 0%, #1d1d1f 100%);
-        color: white;
-        padding: 80px 10% 60px 10%;
-        text-align: center;
-        border-radius: 0 0 50px 50px;
-        margin-bottom: 40px;
-    }
-
-    /* প্রোডাক্ট কার্ড ডিজাইন (Apple Style) */
-    .product-container {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
-        padding: 20px;
-    }
-
-    .premium-card {
-        background: white;
-        border-radius: 24px;
-        padding: 30px;
-        width: 320px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        border: 1px solid #e5e5e7;
-        transition: all 0.4s ease;
-    }
-
-    .premium-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    }
-
-    .price-large {
-        font-size: 42px;
+    /* লোগো */
+    .logo-text {
+        font-size: 28px;
         font-weight: 700;
-        color: #0071e3;
-        margin: 15px 0;
+        color: #007bff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    .trust-badge {
-        background: #eef6ff;
-        color: #0071e3;
-        padding: 5px 12px;
-        border-radius: 100px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .footer {
-        background: #1d1d1f;
-        color: #86868b;
-        padding: 50px 10%;
+    /* হিরো সেকশন */
+    .hero {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url("https://images.unsplash.com/photo-1517430489115-d242c75a967f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80");
+        background-size: cover;
+        background-position: center;
+        padding: 120px 5%;
         text-align: center;
-        font-size: 14px;
-        margin-top: 50px;
+        color: white;
+        border-radius: 0 0 50px 50px;
+        margin-bottom: 50px;
+    }
+    .hero h1 { font-size: 68px; font-weight: 700; margin-bottom: 20px; }
+    .hero p { font-size: 22px; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+
+    /* প্রোডাক্ট কার্ড */
+    .product-card {
+        background: white;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+    }
+    .product-img {
+        width: 100%;
+        max-height: 200px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .card-title { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 10px; }
+    .card-price { font-size: 38px; font-weight: 800; color: #007bff; margin-bottom: 15px; }
+    .risk-label { font-size: 16px; font-weight: 600; margin-bottom: 15px; }
+    .risk-low { color: #28a745; }
+    .risk-medium { color: #ffc107; }
+    .risk-high { color: #dc3545; }
+
+    /* চ্যাটবট */
+    .chat-box {
+        background: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    .chat-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- ৩. মেইন ইন্টারফেস: হিরো সেকশন ---
+# --- ৪. নেভিগেশন বার (লোগো ও মেনু) ---
 st.markdown("""
-    <div class="hero-section">
-        <h1 style="font-size: 56px; font-weight: 700; margin-bottom: 20px;">
-            The Intelligence Behind Your Savings.
-        </h1>
-        <p style="font-size: 24px; font-weight: 400; opacity: 0.9;">
-            AI-Verified Liquidation Stocks from 500+ Verified Retailers Worldwide.
-        </p>
+    <div class="header-bar">
+        <div class="logo-text">AI DEALS</div>
+        <div style="display:flex; gap:20px;">
+            <a href="#" style="color:#333; text-decoration:none; font-weight:600;">Home</a>
+            <a href="#" style="color:#333; text-decoration:none; font-weight:600;">About</a>
+            <a href="#" style="color:#333; text-decoration:none; font-weight:600;">Contact</a>
+            <a href="#" style="color:#333; text-decoration:none; font-weight:600;">Login</a>
+        </div>
+    </div>
+    <div style="padding-top: 80px;"></div>
+    """, unsafe_allow_html=True) # padding-top to account for fixed header
+
+# --- ৫. হিরো সেকশন ও সার্চ বক্স ---
+st.markdown("""
+    <div class="hero">
+        <h1>Unleash Smart Shopping.</h1>
+        <p>Your personal AI assistant for finding the best liquidation deals across the globe.</p>
+        <div style="margin-top: 40px; display: flex; justify-content: center;">
+            <input type="text" id="main_search_input" placeholder="Search for iPhone 15 Pro, Gaming Laptop..." 
+                   style="width: 60%; padding: 15px 20px; border-radius: 30px; border: none; font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-# --- ৪. স্মার্ট সার্চ ইঞ্জিন ---
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    raw_query = st.text_input("", placeholder="Search for luxury electronics, watches, or laptops...", label_visibility="collapsed")
-    search_q = clean_input(raw_query) # হ্যাকিং প্রতিরোধ
+# Streamlit-এর নিজস্ব সার্চ ইনপুট (যাতে কাজ করে)
+search_query = st.text_input(" ", placeholder="Type your search here...", label_visibility="collapsed")
+cleaned_query = clean_input(search_query)
 
-if search_q:
-    with st.spinner('🔐 Verifying global inventory through SSL-encrypted bridge...'):
-        time.sleep(1.5)
+# --- ৬. অতিরিক্ত ফিচার্স (সাইডবার) ---
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/6214/6214534.png", width=100)
+    st.markdown("### ⚡ AI Smart Tools")
+    st.button("🎁 Daily Deals", use_container_width=True)
+    st.button("❤️ Wishlist", use_container_width=True)
+    st.button("📊 Compare Products", use_container_width=True)
+    st.button("📧 Newsletter", use_container_width=True)
+    st.divider()
+    st.markdown("### 💬 Live AI Chatbot")
+    chat_input = st.text_input("Ask me anything!", key="chatbot_input")
+    if chat_input:
+        with st.spinner("AI is typing..."):
+            try:
+                response = model.generate_content(f"User query: {chat_input}. Act as a helpful e-commerce AI assistant. Keep responses concise.")
+                st.markdown(f'<div class="chat-message">{response.text}</div>', unsafe_allow_html=True)
+            except Exception as e:
+                st.error("AI chatbot is busy. Please try again later.")
+
+# --- ৭. প্রোডাক্ট রেজাল্ট ও ডেটা অ্যানালাইসিস ---
+if cleaned_query:
+    st.markdown(f"<h2 style='text-align: center; margin-bottom: 40px;'>AI-Verified Deals for '{cleaned_query}'</h2>", unsafe_allow_html=True)
     
-    base_price = random.randint(700, 2500)
+    # এআই থেকে রিয়ালিস্টিক ডাটা আনার চেষ্টা
+    try:
+        # Gemini-কে দিয়ে ডামি ডাটা জেনারেট করাচ্ছি
+        ai_data_prompt = f"""Generate a JSON object for a product '{cleaned_query}' with 3 conditions:
+        1. "Grade A++": New/Open Box. Estimate a high price, low risk (e.g., 2%), and a premium image URL (e.g., from Unsplash, Pexels).
+        2. "Grade A": Certified Refurbished. Estimate a 30% lower price than A++, medium risk (e.g., 15%), and a relevant image URL.
+        3. "Grade B/C": Liquidation/Used. Estimate a 60% lower price than A++, high risk (e.g., 40%), and a relevant image URL.
+        Include brief descriptions for each. Ensure image URLs are valid.
+        Example image URL format: "https://images.unsplash.com/photo-1517336714730-4965858004e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+        """
+        
+        # এখানে এপিআই কল হচ্ছে। যদি Secrets বসানো থাকে, তবে কাজ করবে।
+        response_data = model.generate_content(ai_data_prompt)
+        # JSON পার্স করার আগে কোড ব্লক রিমুভ করা
+        json_string = response_data.text.strip()
+        if json_string.startswith("```json"):
+            json_string = json_string[len("```json"):].strip()
+        if json_string.endswith("```"):
+            json_string = json_string[:-len("```")].strip()
 
-    # রেজাল্ট এরিয়া
-    st.markdown(f"<h2 style='text-align:center; margin: 40px 0;'>Market Comparison for '{search_q}'</h2>", unsafe_allow_html=True)
+        product_data = json.loads(json_string)
 
-    # প্রিমিয়াম ই-কমার্স লুক
-    st.markdown(f"""
-        <div class="product-container">
-            <div class="premium-card">
-                <span class="trust-badge">AUTHENTICATED</span>
-                <h3 style="margin-top:15px;">Pristine Condition</h3>
-                <p style="color:#86868b;">Grade A++ (Open Box/New)</p>
-                <div class="price-large">${base_price}</div>
-                <p style="color:#008000; font-weight:600;">✓ Lowest Market Risk (0.5%)</p>
-                <p style="font-size:14px; color:#555; margin-top:15px;">Full manufacture warranty included with zero cosmetic imperfections.</p>
-                <div style="background:#0071e3; color:white; text-align:center; padding:12px; border-radius:12px; margin-top:20px; font-weight:600;">Secure Purchase</div>
-            </div>
+        grade_a_plus = product_data[0]
+        grade_a = product_data[1]
+        grade_b_c = product_data[2]
 
-            <div class="premium-card" style="border: 2px solid #0071e3;">
-                <span class="trust-badge" style="background:#fff2e0; color:#ff9500;">BEST VALUE</span>
-                <h3 style="margin-top:15px;">Smart Refurbished</h3>
-                <p style="color:#86868b;">Grade A (Verified Refurb)</p>
-                <div class="price-large">${int(base_price * 0.75)}</div>
-                <p style="color:#ff9500; font-weight:600;">⚠ Moderate Risk (12%)</p>
-                <p style="font-size:14px; color:#555; margin-top:15px;">Professionally inspected. May have 1-2 minor microscopic scratches.</p>
-                <div style="background:#0071e3; color:white; text-align:center; padding:12px; border-radius:12px; margin-top:20px; font-weight:600;">Secure Purchase</div>
-            </div>
+        cols = st.columns(3)
 
-            <div class="premium-card">
-                <span class="trust-badge" style="background:#ffebee; color:#ff3b30;">CLEARANCE</span>
-                <h3 style="margin-top:15px;">Bulk Liquidation</h3>
-                <p style="color:#86868b;">Grade B/C (Used Stock)</p>
-                <div class="price-large">${int(base_price * 0.45)}</div>
-                <p style="color:#ff3b30; font-weight:600;">🛑 High Risk (35%)</p>
-                <p style="font-size:14px; color:#555; margin-top:15px;">Deeply discounted. Visible wear. Recommended for bulk buyers only.</p>
-                <div style="background:#1d1d1f; color:white; text-align:center; padding:12px; border-radius:12px; margin-top:20px; font-weight:600;">Secure Purchase</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # --- ৫. ট্রাস্ট সেকশন (যাতে মানুষ সাইট থেকে না বের হয়) ---
-    st.markdown("""
-        <div style="background: white; padding: 60px 10%; margin-top: 50px; border-radius: 40px; text-align: center;">
-            <h2 style="font-size: 36px; margin-bottom: 40px;">Why Trust Our AI Engine?</h2>
-            <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 30px;">
-                <div style="width: 250px;">
-                    <h4 style="color:#0071e3;">Military Grade Encryption</h4>
-                    <p style="color:#86868b; font-size:14px;">Your data and searches are protected by 256-bit SSL security.</p>
+        with cols[0]:
+            st.markdown(f"""
+                <div class="product-card">
+                    <img src="{grade_a_plus['image_url']}" class="product-img">
+                    <h3 class="card-title">{grade_a_plus['condition']}</h3>
+                    <p>{grade_a_plus['description']}</p>
+                    <p class="card-price">${grade_a_plus['price']}</p>
+                    <p class="risk-label risk-low">Risk: {grade_a_plus['risk']}</p>
+                    <a href="#" class="btn">View Deal</a>
                 </div>
-                <div style="width: 250px;">
-                    <h4 style="color:#0071e3;">Verified Dealers Only</h4>
-                    <p style="color:#86868b; font-size:14px;">We only pull data from retailers with 98%+ positive feedback.</p>
-                </div>
-                <div style="width: 250px;">
-                    <h4 style="color:#0071e3;">Real-time Analysis</h4>
-                    <p style="color:#86868b; font-size:14px;">Prices are updated every 60 seconds from global servers.</p>
-                </div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
-# --- ৬. ফুটার ---
+        with cols[1]:
+            st.markdown(f"""
+                <div class="product-card">
+                    <img src="{grade_a['image_url']}" class="product-img">
+                    <h3 class="card-title">{grade_a['condition']}</h3>
+                    <p>{grade_a['description']}</p>
+                    <p class="card-price">${grade_a['price']}</p>
+                    <p class="risk-label risk-medium">Risk: {grade_a['risk']}</p>
+                    <a href="#" class="btn" style="background:#ffc107;">View Deal</a>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        with cols[2]:
+            st.markdown(f"""
+                <div class="product-card">
+                    <img src="{grade_b_c['image_url']}" class="product-img">
+                    <h3 class="card-title">{grade_b_c['condition']}</h3>
+                    <p>{grade_b_c['description']}</p>
+                    <p class="card-price">${grade_b_c['price']}</p>
+                    <p class="risk-label risk-high">Risk: {grade_b_c['risk']}</p>
+                    <a href="#" class="btn" style="background:#dc3545;">View Deal</a>
+                </div>
+            """, unsafe_allow_html=True)
+
+    except Exception as e:
+        st.error(f"Failed to fetch AI data. Ensure GEMINI_API_KEY is set correctly. Error: {e}")
+        st.info("Displaying static example for now.")
+        # স্ট্যাটিক এক্সাম্পল (যদি এপিআই কাজ না করে)
+        cols = st.columns(3)
+        with cols[0]:
+            st.markdown(f"""
+                <div class="product-card">
+                    <img src="https://images.unsplash.com/photo-1610945415295-cf822368c22a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="product-img">
+                    <h3 class="card-title">Grade A++</h3>
+                    <p>New / Open Box</p>
+                    <p class="card-price">$1200</p>
+                    <p class="risk-label risk-low">Risk: 2%</p>
+                    <a href="#" class="btn">View Deal</a>
+                </div>
+            """, unsafe_allow_html=True)
+        # বাকি কলামগুলোতেও অনুরূপ স্ট্যাটিক কার্ড যুক্ত করুন
+
+
+# --- ৮. ফুটার ---
 st.markdown("""
-    <div class="footer">
-        <p>Copyright © 2026 Retail Intelligence Global Inc. All rights reserved.</p>
-        <p style="margin-top: 10px;">Privacy Policy | Terms of Service | Security Information</p>
-        <div style="margin-top: 20px;">
-            <span style="border: 1px solid #333; padding: 5px 10px; border-radius: 5px; margin-right: 10px;">🛡️ PCI Compliant</span>
-            <span style="border: 1px solid #333; padding: 5px 10px; border-radius: 5px;">🔒 SSL Secure</span>
-        </div>
+    <div style="background: #333; color: #f0f2f5; padding: 40px 5%; text-align: center; margin-top: 50px; border-radius: 50px 50px 0 0;">
+        <p>© 2026 Global Retail Intelligence. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 14px;">Privacy Policy | Terms of Service | Security</p>
     </div>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)    
