@@ -1,4 +1,4 @@
-    import streamlit as st
+import streamlit as st
 import random
 import time
 import re
@@ -245,7 +245,7 @@ if cleaned_query:
         with cols[0]:
             st.markdown(f"""
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1610945415295-cf822368c22a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="product-img">
+                    <img src="https://imas.unsplash.com/photo-1610945415295-cf822368c22a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="product-img">
                     <h3 class="card-title">Grade A++</h3>
                     <p>New / Open Box</p>
                     <p class="card-price">$1200</p>
