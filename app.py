@@ -1,66 +1,93 @@
- base_price = random.randint(500, 2000)
-        grades = [
-            {"name": "Grade A++", "cond": "Brand New", "img": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500", "price": base_price, "risk": "Low"},
-            {"name": "Grade A", "cond": "Certified Refurb", "img": "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500", "price": int(base_price*0.75), "risk": "Medium"},
-            {"name": "Grade B", "cond": "Open Box", "img": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500", "price": int(base_price*0.55), "risk": "Moderate"},
-            {"name": "Grade C", "cond": "Bulk Stock", "img": "https://images.unsplash.com/photo-1526170315876-db60ec51068a?w=500", "price": int(base_price*0.35), "risk": "High"}
-        ]
-        
-        for i, g in enumerate(cols):
-            with g:
-                item = grades[i]
-                st.markdown(f"""
-                <div class="product-card">
-                    <span class="condition-badge" style="background:#e3f2fd; color:#1565c0;">{item['name']}</span>
-                    <img src="{item['img']}" style="width:100%; border-radius:10px; margin-bottom:15px;">
-                    <h4>{query} - {item['cond']}</h4>
-                    <p class="old-price">${int(item['price']*1.33)}</p>
-                    <p class="price-tag">${item['price']} <span class="discount-badge">25% OFF</span></p>
-                    <p style="font-size:13px; color:#666;">Risk Index: {item['risk']}</p>
-                </div>
-                """, unsafe_allow_html=True)
-                st.button(f"View Details {i}", use_container_width=True)
+import streamlit as st
+import random
 
-# --- পেজ ২: ১৫টি পন্যের লিস্ট ---
-elif page == "🛍️ Top 15 Hot Deals":
-    st.header("🔥 Today's Top 15 Liquidation Deals")
-    st.info("Flash Sale: Extra 25% Discount Applied on all items!")
-    
-    # ১৫টি ডামি পন্য
-    products = ["Smart Watch", "Gaming Laptop", "Wireless Buds", "DSLR Camera", "Tablet", 
-                "Bluetooth Speaker", "Monitor", "Keyboard", "Drone", "VR Headset", 
-                "Smartphone", "Console", "Smart Bulb", "Power Bank", "Headphones"]
-    
-    for i in range(0, 15, 3): # ৩টি করে প্রতি লাইনে
-        cols = st.columns(3)
-        for j in range(3):
-            if i + j < 15:
-                with cols[j]:
-                    p_price = random.randint(100, 1000)
-                    st.markdown(f"""
-                    <div class="product-card">
-                        <img src="https://picsum.photos/seed/{i+j+10}/300/200" style="width:100%; border-radius:10px;">
-                        <h4 style="margin-top:10px;">{products[i+j]}</h4>
-                        <p style="font-size:14px; color:#777;">High-quality liquidation stock from global retail hub.</p>
-                        <p class="price-tag">${p_price} <span style="font-size:12px; color:#888; text-decoration:line-through;">${int(p_price*1.3)}</span></p>
-                        <span class="discount-badge">Save 25% Today</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    st.button(f"Buy Now {i+j}", use_container_width=True)
+# ১. পেজ এবং থিম সেটআপ
+st.set_page_config(page_title="GLOBAL-AI | Premium Liquidation Hub", layout="wide")
 
-# --- পেজ ৩: কোয়ালিটি ডিটেইলস ---
-elif page == "📋 Quality Details":
-    st.header("Understand Our Quality Grades")
-    st.markdown("""
-    ### 🛡️ How we analyze products:
-    আমাদের এআই সিস্টেম প্রতিটি পন্যকে ৪টি প্রধান ভাগে ভাগ করে যাতে আপনি সঠিক সিদ্ধান্ত নিতে পারেন।
+# ২. কাস্টম সিএসএস (ডিজাইন সুন্দর করার জন্য)
+st.markdown("""
+<style>
+    .stApp { background-color: #f8fafc; }
+    .header-box { background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 30px; border-radius: 15px; text-align: center; margin-bottom: 25px; }
+    .product-card { background: white; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center; transition: 0.3s; height: 450px; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .price-tag { color: #1e40af; font-size: 22px; font-weight: 800; }
+    .old-price { text-decoration: line-through; color: #94a3b8; font-size: 14px; }
+    .badge { background: #ef4444; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+</style>
+""", unsafe_allow_html=True)
+
+# ৩. হেডার ও দেশ নির্বাচন
+st.markdown("<div class='header-box'><h1>💠 GLOBAL-AI INTELLIGENCE</h1><p>AI-Powered Professional Liquidation Engine</p></div>", unsafe_allow_html=True)
+
+countries = ["USA", "UK", "Bangladesh", "UAE", "Germany", "Canada", "Australia", "India", "France", "Japan", "Italy", "Singapore", "Malaysia", "KSA", "Qatar", "China", "Brazil", "Spain", "Turkey", "Netherlands"]
+selected_country = st.sidebar.selectbox("🌍 Select Shipping Region", countries)
+st.sidebar.info(f"Showing best deals for: {selected_country}")
+
+# ৪. সার্চ বার এবং ৪ রকম পন্যের রেজাল্ট
+query = st.text_input("🔍 Search for a product...", placeholder="e.g. iPhone, Watch, Sneakers")
+
+if query:
+    st.subheader(f"AI Market Comparison for: {query}")
+    c1, c2, c3, c4 = st.columns(4)
+    base_p = random.randint(500, 1500)
     
-    1. **Grade A++ (Pristine):** এগুলো একদম নতুনের মতো। অরিজিনাল বক্স এবং ওয়ারেন্টি থাকে।
-    2. **Grade A (Certified):** হালকা রিফারবিশড কিন্তু ১০০% কাজ করে। প্রফেশনাল চেক করা।
-    3. **Grade B (Open Box):** বক্স খোলা হয়েছে বা হালকা দাগ থাকতে পারে। দাম অনেক কম।
-    4. **Grade C (Liquidation):** সরাসরি কোম্পানির স্টক ক্লিয়ারেন্স থেকে আসা পন্য। রিস্ক বেশি কিন্তু লাভও বেশি।
+    grades = [
+        {"name": "Amazon Premium", "price": base_p, "tag": "Original Retail", "color": "#ff9900"},
+        {"name": "Grade 1 (Mint)", "price": int(base_p*0.75), "tag": "25% OFF", "color": "#2e7d32"},
+        {"name": "Grade 2 (Open Box)", "price": int(base_p*0.50), "tag": "50% OFF", "color": "#1565c0"},
+        {"name": "Grade 3 (Bulk)", "price": int(base_p*0.30), "tag": "70% OFF", "color": "#c62828"}
+    ]
     
-    **কেন আমাদের ডিসকাউন্ট বেশি?**
-    আমরা সরাসরি বড় বড় রিটেইল চেইন থেকে বাল্ক আকারে পন্য কিনি, তাই গ্রাহকদের ২৫% পর্যন্ত ডিসকাউন্ট দিতে পারি।
-    """)
-    st.image("https://images.unsplash.com/photo-1586528116311-a
+    for i, col in enumerate([c1, c2, c3, c4]):
+        with col:
+            st.markdown(f"""
+            <div class="product-card" style="border-top: 5px solid {grades[i]['color']};">
+                <span class="badge" style="background:{grades[i]['color']}">{grades[i]['tag']}</span>
+                <img src="https://loremflickr.com/300/200/{query}?lock={i}" style="width:100%; border-radius:10px; margin:15px 0;">
+                <h4>{grades[i]['name']}</h4>
+                <p class="price-tag">${grades[i]['price']}</p>
+                <p style="font-size:12px; color:gray;">Verified stock in {selected_country}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("Set Price Alert", key=f"alert_{i}"):
+                st.toast(f"✅ Alert set! We'll notify you when {query} drops more.", icon="🔔")
+
+st.divider()
+
+# ৫. ১৫টি ডিমান্ডিং রিটেইল পণ্য (Default লিস্ট)
+st.subheader("🔥 Top 15 High-Demand Retail Products")
+top_products = [
+    "iPhone 15 Pro", "Samsung S24 Ultra", "MacBook Air M3", "Sony Headphones", "Rolex Submariner",
+    "PlayStation 5", "Dyson Vacuum", "Nike Air Jordan", "iPad Pro", "Dell XPS 13",
+    "GoPro HERO12", "Canon EOS R6", "Nintendo Switch", "Bose Speakers", "Electric Scooter"
+]
+
+for row in range(3):
+    cols = st.columns(5)
+    for j in range(5):
+        index = row * 5 + j
+        product_name = top_products[index]
+        with cols[j]:
+            p_price = random.randint(150, 950)
+            st.markdown(f"""
+            <div class="product-card">
+                <img src="https://loremflickr.com/300/200/{product_name.replace(' ', ',')}?lock={index+10}" style="width:100%; border-radius:10px;">
+                <p style="font-weight:bold; margin-top:10px;">{product_name}</p>
+                <p class="old-price">${int(p_price*1.4)}</p>
+                <p class="price-tag">${p_price}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+# ৬. ইউজার রেটিং (১২-২০ জন)
+st.divider()
+st.subheader("🌟 Trusted by Global Users")
+col_rev1, col_rev2 = st.columns([1, 2])
+with col_rev1:
+    st.markdown("## 4.9 / 5.0")
+    st.write("⭐⭐⭐⭐⭐ (12,450 Reviews)")
+with col_rev2:
+    for i in range(3):
+        st.markdown(f"> **User_{random.randint(100,999)}**: 'Incredible price for {top_products[i]}! Highly recommended.' ⭐⭐⭐⭐⭐")
+
+st.markdown("<hr><center>© 2026 GLOBAL-AI INTELLIGENCE | Professional Enterprise System</center>", unsafe_allow_html=True)
