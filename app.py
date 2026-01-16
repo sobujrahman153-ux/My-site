@@ -2,112 +2,119 @@ import streamlit as st
 import random
 import time
 
-# ১. পেজ সেটিংস ও থিম (Modern Look)
-st.set_page_config(page_title="Global Retail AI", layout="wide", initial_sidebar_state="collapsed")
+# ১. পেজ কনফিগারেশন ও থিম
+st.set_page_config(page_title="Global AI Liquidation", layout="wide", initial_sidebar_state="expanded")
 
-# ২. প্রিমিয়াম ক্যানভা-স্টাইল সিএসএস
+# ২. প্রিমিয়াম সিএসএস (ক্যানভা ও আমাজন স্টাইল)
 st.markdown("""
 <style>
-    /* মেইন ব্যাকগ্রাউন্ড */
-    .stApp { background-color: #f9f9fb; }
-    
-    /* ক্যানভা স্টাইল ব্যানার */
-    .hero-section {
-        background: linear-gradient(135deg, #6e8efb, #a777e3);
-        padding: 80px 40px;
-        border-radius: 30px;
-        color: white;
-        text-align: center;
-        margin-bottom: 40px;
-        box-shadow: 0 10px 30px rgba(110, 142, 251, 0.3);
+    .stApp { background-color: #f4f7f9; }
+    .hero-banner {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white; padding: 60px; text-align: center; border-radius: 20px; margin-bottom: 30px;
     }
-    
-    /* কার্ড ডিজাইন */
-    .feature-card {
-        background: white;
-        padding: 30px;
-        border-radius: 24px;
-        border: none;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        text-align: center;
-        transition: 0.3s;
+    .product-card {
+        background: white; padding: 20px; border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #eee;
+        transition: 0.3s; height: 100%; text-align: center;
     }
-    .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-    
-    /* বাটন ডিজাইন */
-    .stButton>button {
-        background: #6e8efb;
-        color: white;
-        border-radius: 12px;
-        padding: 10px 24px;
-        border: none;
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+    .price-tag { font-size: 24px; font-weight: bold; color: #d32f2f; }
+    .old-price { text-decoration: line-through; color: #888; font-size: 16px; }
+    .discount-badge {
+        background: #ffeb3b; color: #000; padding: 5px 10px;
+        border-radius: 5px; font-weight: bold; font-size: 14px;
+    }
+    .condition-badge {
+        display: inline-block; padding: 3px 10px; border-radius: 20px;
+        font-size: 12px; font-weight: bold; margin-bottom: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ৩. টপ নেভিগেশন (লোগো)
-col_l, col_r = st.columns([1, 4])
-with col_l:
-    st.markdown("### 💠 AI DEALS") # এখানে আপনার লোগোর নাম
+# ৩. সাইডবার নেভিগেশন (পেজ কন্ট্রোল)
+st.sidebar.title("💎 AI DEALS MENU")
+page = st.sidebar.radio("Go to:", ["🔍 AI Search Engine", "🛍️ Top 15 Hot Deals", "📋 Quality Details"])
 
-# ৪. হিরো ব্যানার (ক্যানভা স্টাইল)
-st.markdown("""
-<div class="hero-section">
-    <h1 style="font-size: 50px; font-weight: 800;">From Everyday to Extraordinary</h1>
-    <p style="font-size: 20px; opacity: 0.9;">AI-Driven Premium Liquidation Engine for Professionals.</p>
-</div>
-""", unsafe_allow_html=True)
-
-# ৫. সার্চ ইঞ্জিন
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    query = st.text_input("", placeholder="Search for iPhone, Rolex, or Laptops...", label_visibility="collapsed")
-
-if query:
-    with st.spinner('Accessing Global Databases...'):
-        time.sleep(1)
+# --- পেজ ১: AI সার্চ ইঞ্জিন (৪টি কোয়ালিটি) ---
+if page == "🔍 AI Search Engine":
+    st.markdown('<div class="hero-banner"><h1>Smart AI Search</h1><p>Find the best liquidation deals in seconds</p></div>', unsafe_allow_html=True)
     
-    st.markdown(f"### Analysis Report: {query}")
+    query = st.text_input("What are you looking for?", placeholder="e.g. iPhone 15, Laptop, Watch...")
     
-    # ৩টি কন্ডিশন কার্ড
-    c1, c2, c3 = st.columns(3)
-    base = random.randint(600, 1500)
+    if query:
+        with st.spinner('Analyzing 4 Quality Grades...'):
+            time.sleep(1)
+        
+        st.subheader(f"Results for: {query}")
+        cols = st.columns(4)
+        
+        base_price = random.randint(500, 2000)
+        grades = [
+            {"name": "Grade A++", "cond": "Brand New", "img": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500", "price": base_price, "risk": "Low"},
+            {"name": "Grade A", "cond": "Certified Refurb", "img": "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500", "price": int(base_price*0.75), "risk": "Medium"},
+            {"name": "Grade B", "cond": "Open Box", "img": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500", "price": int(base_price*0.55), "risk": "Moderate"},
+            {"name": "Grade C", "cond": "Bulk Stock", "img": "https://images.unsplash.com/photo-1526170315876-db60ec51068a?w=500", "price": int(base_price*0.35), "risk": "High"}
+        ]
+        
+        for i, g in enumerate(cols):
+            with g:
+                item = grades[i]
+                st.markdown(f"""
+                <div class="product-card">
+                    <span class="condition-badge" style="background:#e3f2fd; color:#1565c0;">{item['name']}</span>
+                    <img src="{item['img']}" style="width:100%; border-radius:10px; margin-bottom:15px;">
+                    <h4>{query} - {item['cond']}</h4>
+                    <p class="old-price">${int(item['price']*1.33)}</p>
+                    <p class="price-tag">${item['price']} <span class="discount-badge">25% OFF</span></p>
+                    <p style="font-size:13px; color:#666;">Risk Index: {item['risk']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                st.button(f"View Details {i}", use_container_width=True)
+
+# --- পেজ ২: ১৫টি পন্যের লিস্ট ---
+elif page == "🛍️ Top 15 Hot Deals":
+    st.header("🔥 Today's Top 15 Liquidation Deals")
+    st.info("Flash Sale: Extra 25% Discount Applied on all items!")
     
-    with c1:
-        st.markdown(f"""<div class="feature-card">
-            <h4 style="color:#6e8efb;">GRADE 1</h4>
-            <p style="color:#888;">Condition: Pristine</p>
-            <h2 style="color:#333;">${base}</h2>
-            <p style="color:green; font-weight:bold;">Risk: 0.5%</p>
-        </div>""", unsafe_allow_html=True)
-        st.button("Secure Deal", key="b1", use_container_width=True)
+    # ১৫টি ডামি পন্য
+    products = ["Smart Watch", "Gaming Laptop", "Wireless Buds", "DSLR Camera", "Tablet", 
+                "Bluetooth Speaker", "Monitor", "Keyboard", "Drone", "VR Headset", 
+                "Smartphone", "Console", "Smart Bulb", "Power Bank", "Headphones"]
+    
+    for i in range(0, 15, 3): # ৩টি করে প্রতি লাইনে
+        cols = st.columns(3)
+        for j in range(3):
+            if i + j < 15:
+                with cols[j]:
+                    p_price = random.randint(100, 1000)
+                    st.markdown(f"""
+                    <div class="product-card">
+                        <img src="https://picsum.photos/seed/{i+j+10}/300/200" style="width:100%; border-radius:10px;">
+                        <h4 style="margin-top:10px;">{products[i+j]}</h4>
+                        <p style="font-size:14px; color:#777;">High-quality liquidation stock from global retail hub.</p>
+                        <p class="price-tag">${p_price} <span style="font-size:12px; color:#888; text-decoration:line-through;">${int(p_price*1.3)}</span></p>
+                        <span class="discount-badge">Save 25% Today</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.button(f"Buy Now {i+j}", use_container_width=True)
 
-    with c2:
-        st.markdown(f"""<div class="feature-card" style="border: 2px solid #6e8efb;">
-            <h4 style="color:#6e8efb;">GRADE 2</h4>
-            <p style="color:#888;">Condition: Verified Refurb</p>
-            <h2 style="color:#333;">${int(base*0.7)}</h2>
-            <p style="color:orange; font-weight:bold;">Risk: 12%</p>
-        </div>""", unsafe_allow_html=True)
-        st.button("Secure Deal", key="b2", use_container_width=True)
+# --- পেজ ৩: কোয়ালিটি ডিটেইলস ---
+elif page == "📋 Quality Details":
+    st.header("Understand Our Quality Grades")
+    st.markdown("""
+    ### 🛡️ How we analyze products:
+    আমাদের এআই সিস্টেম প্রতিটি পন্যকে ৪টি প্রধান ভাগে ভাগ করে যাতে আপনি সঠিক সিদ্ধান্ত নিতে পারেন।
+    
+    1. **Grade A++ (Pristine):** এগুলো একদম নতুনের মতো। অরিজিনাল বক্স এবং ওয়ারেন্টি থাকে।
+    2. **Grade A (Certified):** হালকা রিফারবিশড কিন্তু ১০০% কাজ করে। প্রফেশনাল চেক করা।
+    3. **Grade B (Open Box):** বক্স খোলা হয়েছে বা হালকা দাগ থাকতে পারে। দাম অনেক কম।
+    4. **Grade C (Liquidation):** সরাসরি কোম্পানির স্টক ক্লিয়ারেন্স থেকে আসা পন্য। রিস্ক বেশি কিন্তু লাভও বেশি।
+    
+    **কেন আমাদের ডিসকাউন্ট বেশি?**
+    আমরা সরাসরি বড় বড় রিটেইল চেইন থেকে বাল্ক আকারে পন্য কিনি, তাই গ্রাহকদের ২৫% পর্যন্ত ডিসকাউন্ট দিতে পারি।
+    """)
+    st.image("https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800")
 
-    with c3:
-        st.markdown(f"""<div class="feature-card">
-            <h4 style="color:#6e8efb;">GRADE 3</h4>
-            <p style="color:#888;">Condition: Open Stock</p>
-            <h2 style="color:#333;">${int(base*0.4)}</h2>
-            <p style="color:red; font-weight:bold;">Risk: 38%</p>
-        </div>""", unsafe_allow_html=True)
-        st.button("Secure Deal", key="b3", use_container_width=True)
-
-# ৬. সাইডবার চ্যাটবট (স্মার্ট ফিচার)
-with st.sidebar:
-    st.markdown("### 💬 AI Assistant")
-    st.write("Hello! I can help you find the best liquidation risks.")
-    st.text_input("Ask me something...")
-    st.divider()
-    st.markdown("### 📊 Market Status")
-    st.success("Global servers online")
-
-# ৭. ফুটার
-st.markdown("<br><hr><center>© 2026 Global Retail AI | Powered by Gemini</center>", unsafe_allow_html=True)
+# ফুটার
+st.markdown("<hr><center>© 2026 AI Dealer Engine | Trusted by 10k+ Professionals</center>", unsafe_allow_html=True)
